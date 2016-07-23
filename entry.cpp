@@ -50,6 +50,8 @@ extern "C" {
 		result.stderr_buffer = stderr_buffer;
 		result.error         = error;
 
+		pg_query_free_parse_result(tmp_result);
+
 		return result;
 	}
 }
