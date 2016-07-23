@@ -1,4 +1,4 @@
-LIB_PG_QUERY_TAG = 9.5-1.3.0
+LIB_PG_QUERY_TAG = 9.5-1.4.1
 
 root_dir := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 TMPDIR = $(root_dir)/tmp
@@ -19,6 +19,7 @@ $(LIBDIRGZ):
 	curl -o $(LIBDIRGZ) https://codeload.github.com/lfittl/libpg_query/tar.gz/$(LIB_PG_QUERY_TAG)
 
 flatten_source: $(LIBDIR)
+	mkdir -p parser
 	rm -f parser/*.{c,h}
 	rm -fr parser/include
 	# Reduce everything down to one directory
@@ -35,7 +36,9 @@ fix_pg_config:
 	echo "#undef PG_INT128_TYPE" >> parser/include/pg_config.h
 
 update_source: flatten_source fix_pg_config
-	emcc -s EXPORTED_FUNCTIONS="['_parse']" -Iparser/include -O2 --pre-js module.js --memory-init-file 0 -o pg_query.js entry.c parser/*.c
+	emcc -o pg_query.o -Iparser/include parser/*.c
+	em++ -s EXPORTED_FUNCTIONS="['_raw_parse']" -Iparser/include -O2 --bind --pre-js module.js --memory-init-file 0 -o pg_query.js pg_query.o entry.cpp
+	rm -f pg_query.o
 
 clean:
 	-@ $(RM) -r $(TMPDIR)
