@@ -19,41 +19,37 @@ typedef struct {
 	ParseError error;
 } ParseResult;
 
-extern "C" {
-	ParseResult raw_parse(intptr_t input) {
-		PgQueryParseResult tmp_result;
-		ParseResult result;
+ParseResult raw_parse(intptr_t input) {
+	PgQueryParseResult tmp_result;
+	ParseResult result;
+
+	tmp_result = pg_query_parse(reinterpret_cast<char*>(input));
+
+	if (tmp_result.error) {
 		ParseError error;
 
-		tmp_result = pg_query_parse(reinterpret_cast<char*>(input));
+		error.message   = std::string(tmp_result.error->message);
+		error.funcname  = std::string(tmp_result.error->funcname);
+		error.filename  = std::string(tmp_result.error->filename);
+		error.lineno    = int(tmp_result.error->lineno);
+		error.cursorpos = int(tmp_result.error->cursorpos);
 
-		std::string error_message(tmp_result.error->message);
-		std::string error_funcname(tmp_result.error->funcname);
-		std::string error_filename(tmp_result.error->filename);
+		if (tmp_result.error->context) {
+			error.context = std::string(tmp_result.error->context);
+		}
 
-		int error_lineno(tmp_result.error->lineno);
-		int error_cursorpos(tmp_result.error->cursorpos);
-
-		std::string error_context(tmp_result.error->context);
-
-		error.message   = error_message;
-		error.funcname  = error_funcname;
-		error.filename  = error_filename;
-		error.lineno    = error_lineno;
-		error.cursorpos = error_cursorpos;
-		error.context   = error_context;
-
-		std::string parse_tree(tmp_result.parse_tree);
-		std::string stderr_buffer(tmp_result.stderr_buffer);
-
-		result.parse_tree    = parse_tree;
-		result.stderr_buffer = stderr_buffer;
-		result.error         = error;
-
-		pg_query_free_parse_result(tmp_result);
-
-		return result;
+		result.error = error;
 	}
+
+	if (tmp_result.stderr_buffer) {
+		result.stderr_buffer = std::string(tmp_result.stderr_buffer);
+	}
+
+	result.parse_tree = std::string(tmp_result.parse_tree);
+
+	pg_query_free_parse_result(tmp_result);
+
+	return result;
 }
 
 EMSCRIPTEN_BINDINGS(my_module) {

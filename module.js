@@ -7,7 +7,11 @@ var Module = {
     var pointer = allocate(intArrayFromString(text), 'i8', ALLOC_NORMAL);
     var parsed  = Module.raw_parse(pointer);
 
-    parsed['parse_tree'] = JSON.parse(parsed['parse_tree']);
+    parsed.parse_tree = JSON.parse(parsed['parse_tree']);
+
+    if (parsed.error.message == "") {
+      parsed.error = null
+    }
 
     return parsed;
   },
