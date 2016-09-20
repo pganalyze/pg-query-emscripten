@@ -9,7 +9,7 @@ Example use cases might include automatically checking for bad query patterns (e
 ### Usage (Plain JS)
 
 ```html
-<script src="https://unpkg.com/pg-query-emscripten@0.0.1"></script>
+<script src="https://unpkg.com/pg-query-emscripten"></script>
 <script>
   console.log(PgQuery.parse("SELECT 1"));
 </script>
