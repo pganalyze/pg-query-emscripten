@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/lfittl/pg-query-emscripten/issues"
   },
-  "homepage": "https://github.com/lfittl/pg-query-emscripten#readme"
+  "homepage": "https://github.com/lfittl/pg-query-emscripten#readme",
+  "browser": {
+    "fs": false
+  }
 }
