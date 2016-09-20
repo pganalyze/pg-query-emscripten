@@ -1,5 +1,5 @@
 {
-  "name": "pg_query_emscripten",
+  "name": "pg-query-emscripten",
   "version": "0.0.1",
   "description": "Parse any valid PostgreSQL query in your browser using Javascript!",
   "main": "pg_query.js",
