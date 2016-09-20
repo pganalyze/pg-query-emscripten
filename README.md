@@ -6,7 +6,7 @@ This builds a pure Javascript port of [libpg_query](https://github.com/lfittl/li
 
 Example use cases might include automatically checking for bad query patterns (e.g. LIMIT/OFFSET), understanding which tables a query references, or using structural pg_dump output to produce a schema diagram on the fly.
 
-## Usage (Plain JS)
+### Usage (Plain JS)
 
 ```html
 <script src="https://unpkg.com/pg-query-emscripten@0.0.1"></script>
@@ -15,7 +15,7 @@ Example use cases might include automatically checking for bad query patterns (e
 </script>
 ```
 
-## Usage (npm)
+### Usage (npm)
 
 ```
 npm install pg-query-emscripten --save
@@ -29,11 +29,11 @@ import PgQuery from 'pg-query-emscripten';
 console.log(PgQuery.parse("SELECT 1"));
 ```
 
-## Author
+### Author
 
 * [Lukas Fittl](https://github.com/lfittl)
 
-## LICENSE
+### LICENSE
 
 Copyright (c) 2016 Lukas Fittl<br>
 Licensed under the MIT License.

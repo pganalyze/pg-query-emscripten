@@ -8,12 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lfittl/pg_query_emscripten.git"
+    "url": "git+https://github.com/lfittl/pg-query-emscripten.git"
   },
   "author": "Lukas Fittl",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/lfittl/pg_query_emscripten/issues"
+    "url": "https://github.com/lfittl/pg-query-emscripten/issues"
   },
-  "homepage": "https://github.com/lfittl/pg_query_emscripten#readme"
+  "homepage": "https://github.com/lfittl/pg-query-emscripten#readme"
 }
