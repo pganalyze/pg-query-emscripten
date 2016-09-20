@@ -1,0 +1,19 @@
+{
+  "name": "pg_query_emscripten",
+  "version": "0.0.1",
+  "description": "Parse any valid PostgreSQL query in your browser using Javascript!",
+  "main": "pg_query.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lfittl/pg_query_emscripten.git"
+  },
+  "author": "Lukas Fittl",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lfittl/pg_query_emscripten/issues"
+  },
+  "homepage": "https://github.com/lfittl/pg_query_emscripten#readme"
+}
