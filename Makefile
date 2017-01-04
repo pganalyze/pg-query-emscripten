@@ -36,8 +36,8 @@ fix_pg_config:
 	echo "#undef PG_INT128_TYPE" >> parser/include/pg_config.h
 
 update_source: flatten_source fix_pg_config
-	emcc -o pg_query.o -Iparser/include parser/*.c
-	em++ -s EXPORTED_FUNCTIONS="['_raw_parse']" -Iparser/include -O2 --bind --pre-js module.js --memory-init-file 0 -o tmp/pg_query_raw.js pg_query.o entry.cpp
+	emcc -O3 -o pg_query.o -Iparser/include parser/*.c
+	em++ -s EXPORTED_FUNCTIONS="['_raw_parse']" -Iparser/include -O3 --bind --pre-js module.js --memory-init-file 0 -o tmp/pg_query_raw.js pg_query.o entry.cpp
 	rm -f pg_query.o
 	echo "var PgQuery = (function () {" > pg_query.js
 	cat tmp/pg_query_raw.js >> pg_query.js
