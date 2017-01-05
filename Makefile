@@ -1,4 +1,4 @@
-LIB_PG_QUERY_TAG = 9.5-1.4.1
+LIB_PG_QUERY_TAG = 9.5-1.4.2
 
 root_dir := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 TMPDIR = $(root_dir)/tmp
@@ -37,11 +37,11 @@ fix_pg_config:
 
 update_source: flatten_source fix_pg_config
 	emcc -O3 -o pg_query.o -Iparser/include parser/*.c
-	em++ -s EXPORTED_FUNCTIONS="['_raw_parse']" -Iparser/include -O3 --bind --pre-js module.js --memory-init-file 0 -o tmp/pg_query_raw.js pg_query.o entry.cpp
+	em++ -s EXPORTED_FUNCTIONS="['_normalize', '_parse', '_parse_plpgsql', '_fingerprint']" -Iparser/include -O3 --bind --pre-js module.js --memory-init-file 0 -o tmp/pg_query_raw.js pg_query.o entry.cpp
 	rm -f pg_query.o
 	echo "var PgQuery = (function () {" > pg_query.js
 	cat tmp/pg_query_raw.js >> pg_query.js
-	echo "return { parse: Module.parse };" >> pg_query.js
+	echo "return { normalize: Module.normalize, parse: Module.parse, parse_plpgsql: Module.parse_plpgsql, fingerprint: Module.fingerprint };" >> pg_query.js
 	echo "})();" >> pg_query.js
 	echo "if (typeof module !== 'undefined') module.exports = PgQuery;" >> pg_query.js
 	echo "if (typeof define === 'function') define(PgQuery);" >> pg_query.js
