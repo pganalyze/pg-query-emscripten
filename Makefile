@@ -1,4 +1,4 @@
-LIB_PG_QUERY_TAG = 9.5-1.4.2
+LIB_PG_QUERY_TAG = 10-1.0.1
 
 root_dir := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 TMPDIR = $(root_dir)/tmp
@@ -28,7 +28,7 @@ flatten_source: $(LIBDIR)
 	rmdir parser/postgres
 	cp -a $(LIBDIR)/pg_query.h parser/include
 	# Make sure every .c file in the top-level directory is its own translation unit
-	mv parser/*{_conds,_defs,_helper,scan}.c parser/include
+	mv parser/*{_conds,_defs,_helper,_random}.c parser/include
 
 fix_pg_config:
 	echo "#undef HAVE_SIGSETJMP" >> parser/include/pg_config.h
