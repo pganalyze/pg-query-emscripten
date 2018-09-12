@@ -35,5 +35,5 @@ console.log(PgQuery.parse("SELECT 1"));
 
 ### LICENSE
 
-Copyright (c) 2016 Lukas Fittl<br>
+Copyright (c) 2018 Lukas Fittl<br>
 Licensed under the MIT License.
