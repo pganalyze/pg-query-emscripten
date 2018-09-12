@@ -1,4 +1,4 @@
-LIB_PG_QUERY_TAG = 9.5-1.4.2
+LIB_PG_QUERY_TAG = 10-1.0.2
 
 root_dir := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 TMPDIR = $(root_dir)/tmp
@@ -28,7 +28,7 @@ flatten_source: $(LIBDIR)
 	rmdir parser/postgres
 	cp -a $(LIBDIR)/pg_query.h parser/include
 	# Make sure every .c file in the top-level directory is its own translation unit
-	mv parser/*{_conds,_defs,_helper,scan}.c parser/include
+	mv parser/*{_conds,_defs,_helper,_random}.c parser/include
 
 fix_pg_config:
 	echo "#undef HAVE_SIGSETJMP" >> parser/include/pg_config.h
@@ -37,7 +37,7 @@ fix_pg_config:
 
 update_source: flatten_source fix_pg_config
 	emcc -O3 -o pg_query.o -Iparser/include parser/*.c
-	em++ -s EXPORTED_FUNCTIONS="['_normalize', '_parse', '_parse_plpgsql', '_fingerprint']" -Iparser/include -O3 --bind --pre-js module.js --memory-init-file 0 -o tmp/pg_query_raw.js pg_query.o entry.cpp
+	em++ -s EXPORTED_FUNCTIONS="['_normalize', '_parse', '_parse_plpgsql', '_fingerprint']" -Iparser/include -O3 --bind --pre-js module.js --memory-init-file 0 -s "WASM=0" -o tmp/pg_query_raw.js pg_query.o entry.cpp
 	rm -f pg_query.o
 	echo "var PgQuery = (function () {" > pg_query.js
 	cat tmp/pg_query_raw.js >> pg_query.js
