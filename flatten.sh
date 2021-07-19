@@ -58,4 +58,4 @@ echo "#undef HAVE_SIGSETJMP" >> "${FLATTENED_LIB_DIR}/include/pg_config.h"
 echo "#undef HAVE_SPINLOCKS" >> "${FLATTENED_LIB_DIR}/include/pg_config.h"
 echo "#undef PG_INT128_TYPE" >> "${FLATTENED_LIB_DIR}/include/pg_config.h"
 
-make -j $(nproc) pg_query.js
+make -j $(nproc) "${1}"
