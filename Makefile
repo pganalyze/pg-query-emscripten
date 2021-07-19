@@ -1,7 +1,13 @@
 SOURCES := $(wildcard $(FLATTENED_LIB_DIR)/*.c)
 OBJECTS := $(patsubst $(FLATTENED_LIB_DIR)/%.c,$(OBJECT_DIR)/%.o, $(SOURCES))
 
-all: pg_query.js
+.PHONY: flatten
+
+all: flatten
+
+# Generates the source tree that `pg_query.js` operates on
+flatten:
+	./flatten.sh
 
 $(OBJECT_DIR)/%.o: $(FLATTENED_LIB_DIR)/%.c
 	@mkdir -p $(@D)
