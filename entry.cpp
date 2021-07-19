@@ -1,6 +1,10 @@
 #include <emscripten/bind.h>
 #include "pg_query.h"
 
+#if PG_VERSION_NUM >= 130002
+#include "protobuf/pg_query.pb-c.h"
+#endif
+
 using namespace emscripten;
 
 /* Map to structs we can export */
@@ -31,10 +35,29 @@ typedef struct {
 } PlpgsqlParseResult;
 
 typedef struct {
-  std::string hexdigest;
+  std::string fingerprint_str;
   std::string stderr_buffer;
   ParseError error;
 } FingerprintResult;
+
+
+#if PG_VERSION_NUM >= 130002
+typedef struct {
+	std::string text;
+	uint32_t start;
+	uint32_t end;
+	std::string token_kind;
+	std::string keyword_kind;
+} Token;
+
+typedef struct {
+	uint32_t version;
+	uint32_t size;
+	std::vector<Token> tokens;
+	std::string stderr_buffer;
+	ParseError error;
+} ScanResult;
+#endif
 
 ParseError transform_error(PgQueryError tmp_error) {
 	ParseError error;
@@ -106,6 +129,62 @@ PlpgsqlParseResult raw_parse_plpgsql(intptr_t input) {
 	return result;
 }
 
+// Scanner not avaliable in older versions
+#if PG_VERSION_NUM >= 130002
+ScanResult raw_scan(intptr_t input) {
+	PgQueryScanResult tmp_result;
+	ScanResult result;
+
+	PgQuery__ScanResult *scan_result;
+	PgQuery__ScanToken *scan_token;
+	const ProtobufCEnumValue *token_kind;
+	const ProtobufCEnumValue *keyword_kind;
+	
+	std::string casted_input = std::string(reinterpret_cast<char*>(input));
+
+	tmp_result = pg_query_scan(casted_input.c_str());
+	scan_result = pg_query__scan_result__unpack(
+		NULL, tmp_result.pbuf.len, (uint8_t *) tmp_result.pbuf.data
+	);
+
+	result.version = scan_result->version;
+	result.size = tmp_result.pbuf.len;
+
+	for (size_t j = 0; j < scan_result->n_tokens; j++) {
+		scan_token = scan_result->tokens[j];
+		token_kind = protobuf_c_enum_descriptor_get_value(
+			&pg_query__token__descriptor, scan_token->token
+		);
+		keyword_kind = protobuf_c_enum_descriptor_get_value(
+			&pg_query__keyword_kind__descriptor, scan_token->keyword_kind
+		);
+
+		Token token;
+
+		token.text = casted_input.substr(scan_token->start, scan_token->end - scan_token->start);
+		token.start = scan_token->start;
+		token.end = scan_token->end;
+		token.token_kind = token_kind->name;
+		token.keyword_kind = keyword_kind->name;
+
+		result.tokens.push_back(token);
+	}
+
+	if (tmp_result.error) {
+		result.error = transform_error(*tmp_result.error);
+	}
+	if (tmp_result.stderr_buffer) {
+		result.stderr_buffer = std::string(tmp_result.stderr_buffer);
+	}
+
+	pg_query__scan_result__free_unpacked(scan_result, NULL);
+	pg_query_free_scan_result(tmp_result);
+
+	return result;
+}
+#endif
+
+
 FingerprintResult raw_fingerprint(intptr_t input) {
 	PgQueryFingerprintResult tmp_result;
 	FingerprintResult result;
@@ -119,7 +198,14 @@ FingerprintResult raw_fingerprint(intptr_t input) {
 		result.stderr_buffer = std::string(tmp_result.stderr_buffer);
 	}
 
-	result.hexdigest = std::string(tmp_result.hexdigest);
+#if PG_VERSION_NUM == 130002
+	result.fingerprint_str = std::string(tmp_result.fingerprint_str);
+#endif
+
+
+#if PG_VERSION_NUM == 100000	
+	result.fingerprint_str = std::string(tmp_result.hexdigest);
+#endif
 
 	pg_query_free_fingerprint_result(tmp_result);
 
@@ -144,10 +230,31 @@ EMSCRIPTEN_BINDINGS(my_module) {
 		;
 
 	value_object<FingerprintResult>("FingerprintResult")
-		.field("hexdigest", &FingerprintResult::hexdigest)
+		.field("fingerprint_str", &FingerprintResult::fingerprint_str)
 		.field("stderr_buffer", &FingerprintResult::stderr_buffer)
 		.field("error", &FingerprintResult::error)
 		;
+
+
+#if PG_VERSION_NUM >= 130002
+	value_object<Token>("Token")
+		.field("text", &Token::text)
+		.field("start", &Token::start)
+		.field("end", &Token::end)
+		.field("token_kind", &Token::token_kind)
+		.field("keyword_kind", &Token::keyword_kind)	
+		;
+
+	register_vector<Token>("VectorToken");
+
+	value_object<ScanResult>("ScanResult")
+		.field("version", &ScanResult::version)
+		.field("size", &ScanResult::size)
+		.field("tokens", &ScanResult::tokens)
+		.field("stderr_buffer", &ScanResult::stderr_buffer)
+		.field("error", &ScanResult::error)
+		;
+#endif 
 
 	value_object<ParseError>("ParseError")
 		.field("message", &ParseError::message)
@@ -162,4 +269,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
 	function("raw_parse", &raw_parse);
 	function("raw_parse_plpgsql", &raw_parse_plpgsql);
 	function("raw_fingerprint", &raw_fingerprint);
+#if PG_VERSION_NUM >= 130002
+	function("raw_scan", &raw_scan);
+#endif 
 }

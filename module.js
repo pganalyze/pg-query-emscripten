@@ -1,11 +1,7 @@
 var Module = {
-  print: function(text) { console.log('stdout: ' + text) },
-  printErr: function(text) { console.log('stderr: ' + text) },
-  noInitialRun: true,
-
   normalize: function normalize(text) {
-    var pointer = allocate(intArrayFromString(text), 'i8', ALLOC_NORMAL);
-    var parsed  = Module.raw_normalize(pointer);
+    var pointer = allocate(intArrayFromString(text), Module['ALLOC_STACK']);
+    var parsed = Module.raw_normalize(pointer);
     Module._free(pointer);
     
     if (parsed.error.message == "") {
@@ -16,8 +12,8 @@ var Module = {
   },
 
   parse: function parse(text) {
-    var pointer = allocate(intArrayFromString(text), 'i8', ALLOC_NORMAL);
-    var parsed  = Module.raw_parse(pointer);
+    var pointer = allocate(intArrayFromString(text), Module['ALLOC_STACK']);
+    var parsed = Module.raw_parse(pointer);
     Module._free(pointer);
     
     parsed.parse_tree = JSON.parse(parsed['parse_tree']);
@@ -30,8 +26,8 @@ var Module = {
   },
 
   parse_plpgsql: function parse_plpgsql(text) {
-    var pointer = allocate(intArrayFromString(text), 'i8', ALLOC_NORMAL);
-    var parsed  = Module.raw_parse_plpgsql(pointer);
+    var pointer = allocate(intArrayFromString(text), Module['ALLOC_STACK']);
+    var parsed = Module.raw_parse_plpgsql(pointer);
     Module._free(pointer);
     
     parsed.plpgsql_funcs = JSON.parse(parsed['plpgsql_funcs']);
@@ -44,16 +40,30 @@ var Module = {
   },
 
   fingerprint: function fingerprint(text) {
-    var pointer = allocate(intArrayFromString(text), 'i8', ALLOC_NORMAL);
-    var parsed  = Module.raw_fingerprint(pointer);
+    var pointer = allocate(intArrayFromString(text), Module['ALLOC_STACK']);
+    var parsed = Module.raw_fingerprint(pointer);
     Module._free(pointer);
     
     if (parsed.error.message == "") {
       parsed.error = null
     } else {
-      parsed.hexdigest = null
+      parsed.fingerprint_str = null
     }
 
     return parsed;
   },
+
+  scan: function scan(text) {
+    var pointer = allocate(intArrayFromString(text), Module['ALLOC_STACK']);
+    var parsed = Module.raw_scan(pointer);
+    Module._free(pointer);
+    
+    if (parsed.error.message == "") {
+      parsed.error = null
+    } else {
+      parsed.tokens = null
+    }
+
+    return parsed;
+  }
 };
