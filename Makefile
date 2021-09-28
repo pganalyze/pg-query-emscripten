@@ -18,7 +18,7 @@ $(error Invalid $$WASM value "$(WASM)" (can either by `0` or `1`))
 endif
 endif
 
-.PHONY: flatten
+.PHONY: flatten test
 .NOTPARALLEL: flatten
 
 all: flatten
@@ -98,3 +98,6 @@ $(ARTIFACT): $(OBJECTS) entry.cpp module.js
 
 clean:
 	-@ $(RM) -r $(BUILD_DIR)
+
+test:
+	NODE_OPTIONS=--experimental-vm-modules yarn test

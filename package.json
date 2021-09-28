@@ -4,7 +4,7 @@
   "description": "Parse any valid PostgreSQL query in your browser using Javascript!",
   "main": "pg_query.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "files": ["pg_query.js"],
   "repository": {
@@ -19,5 +19,8 @@
   "homepage": "https://github.com/lfittl/pg-query-emscripten#readme",
   "browser": {
     "fs": false
+  },
+  "devDependencies": {
+    "jest": "^27.2.2"
   }
 }
