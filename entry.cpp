@@ -196,7 +196,7 @@ FingerprintResult raw_fingerprint(intptr_t input) {
 		result.stderr_buffer = std::string(tmp_result.stderr_buffer);
 	}
 
-#if PG_VERSION_NUM == 130002
+#if PG_VERSION_NUM >= 130002
 	result.fingerprint_str = std::string(tmp_result.fingerprint_str);
 #endif
 
