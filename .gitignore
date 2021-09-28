@@ -1,3 +1,6 @@
 parser/
 tmp/
 node_modules/
+
+pg_query.js
+pg_query_wasm.js
