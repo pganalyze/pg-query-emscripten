@@ -52,7 +52,6 @@ typedef struct {
 
 typedef struct {
 	uint32_t version;
-	uint32_t size;
 	std::vector<Token> tokens;
 	std::string stderr_buffer;
 	ParseError error;
@@ -148,7 +147,6 @@ ScanResult raw_scan(intptr_t input) {
 	);
 
 	result.version = scan_result->version;
-	result.size = tmp_result.pbuf.len;
 
 	for (size_t j = 0; j < scan_result->n_tokens; j++) {
 		scan_token = scan_result->tokens[j];
@@ -249,7 +247,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
 
 	value_object<ScanResult>("ScanResult")
 		.field("version", &ScanResult::version)
-		.field("size", &ScanResult::size)
 		.field("tokens", &ScanResult::tokens)
 		.field("stderr_buffer", &ScanResult::stderr_buffer)
 		.field("error", &ScanResult::error)
