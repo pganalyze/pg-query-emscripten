@@ -6,7 +6,7 @@ OBJECT_DIR := $(BUILD_DIR)/object
 LIB_DIR := $(BUILD_DIR)/libpg_query
 LIB_ARCHIVE := $(BUILD_DIR)/libpg_query.tar.gz
 
-WASM ?= 1
+WASM ?= 0
 
 ifeq ($(WASM),1)
 ARTIFACT := pg_query_wasm.js
@@ -83,14 +83,14 @@ $(OBJECT_DIR)/%.o: $(FLATTENED_LIB_DIR)/%.c
 $(ARTIFACT): $(OBJECTS) entry.cpp module.js
 	em++ \
 		-I $(FLATTENED_LIB_DIR)/include \
-		-s "ALLOW_MEMORY_GROWTH=1" \
-		-s "ASSERTIONS=0" \
+		-s ALLOW_MEMORY_GROWTH=1 \
+		-s ASSERTIONS=0 \
 		-s EXPORTED_RUNTIME_METHODS="['ALLOC_STACK']" \
-		-s "ENVIRONMENT=web" \
-		-s "SINGLE_FILE=1" \
-		-s "MODULARIZE=1" \
-		-s 'EXPORT_NAME="pgQuery"' \
-		-s "EXPORT_ES6=1" \
+		-s ENVIRONMENT=web \
+		-s SINGLE_FILE=1 \
+		-s MODULARIZE=1 \
+		-s EXPORT_NAME="pgQuery" \
+		-s EXPORT_ES6=1 \
 		-s WASM=$(WASM) \
 		-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 		-o $(ARTIFACT) --bind -O3 --no-entry --pre-js module.js \
