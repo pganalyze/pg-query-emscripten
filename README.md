@@ -1,4 +1,4 @@
-## pg-query-emscripten [ ![](https://img.shields.io/npm/v/pg-query-emscripten.svg)](https://www.npmjs.com/package/pg-query-emscripten)
+## pg-query-emscripten [![](https://img.shields.io/npm/v/pg-query-emscripten.svg)](https://www.npmjs.com/package/pg-query-emscripten)
 
 Parse any valid PostgreSQL query in your browser using Javascript!
 
@@ -6,32 +6,28 @@ This builds a pure Javascript port of [libpg_query](https://github.com/lfittl/li
 
 Example use cases might include automatically checking for bad query patterns (e.g. LIMIT/OFFSET), understanding which tables a query references, or using structural pg_dump output to produce a schema diagram on the fly.
 
-### Usage (Plain JS)
-
-```html
-<script src="https://unpkg.com/pg-query-emscripten"></script>
-<script>
-  console.log(PgQuery.parse("SELECT 1"));
-</script>
-```
-
-### Usage (npm)
+### Usage
 
 ```
 npm install pg-query-emscripten --save
 ```
 
-Then import using your favorite tool, e.g.
-
 ```javascript
-import PgQuery from 'pg-query-emscripten';
+import Module from "pg-query-emscripten";
 
-console.log(PgQuery.parse("SELECT 1"));
+let pgQuery;
+
+(async () => {
+  pgQuery = await new Module();
+
+  console.log(pgQuery.parse("select 1"));
+})();
 ```
 
 ### Author
 
-* [Lukas Fittl](https://github.com/lfittl)
+- [Lukas Fittl](https://github.com/lfittl)
+- [Philip Trauner](https://github.com/PhilipTrauner)
 
 ### LICENSE
 
