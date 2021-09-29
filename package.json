@@ -22,5 +22,11 @@
   },
   "devDependencies": {
     "jest": "^27.2.2"
-  }
+  },
+  "keywords": [
+    "postgres",
+    "query",
+    "parser",
+    "browser"
+  ]
 }
