@@ -25,8 +25,8 @@ var Module = {
     return parsed;
   },
 
-  parse_plpgsql: function parse_plpgsql(text) {
-    var pointer = allocate(intArrayFromString(text), Module['ALLOC_STACK']);
+  parsePlpgsql: function parse_plpgsql(text) {
+    var pointer = allocate(intArrayFromString(text), Module["ALLOC_STACK"]);
     var parsed = Module.raw_parse_plpgsql(pointer);
     Module._free(pointer);
     
