@@ -47,8 +47,8 @@ test("parse", () => {
 	});
 });
 
-test("parse_plpgsql", () => {
-	const expected = pgQuery.parse_plpgsql(`
+test("parsePlpgsql", () => {
+	const expected = pgQuery.parsePlpgsql(`
 		CREATE OR REPLACE FUNCTION cs_fmt_browser_version(
 			v_name varchar,
 			v_version varchar
