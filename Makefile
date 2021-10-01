@@ -91,6 +91,8 @@ $(ARTIFACT): $(OBJECTS) entry.cpp module.js
 		-s MODULARIZE=1 \
 		-s EXPORT_NAME="pgQuery" \
 		-s WASM=$(WASM) \
+		-s USE_ES6_IMPORT_META=0 \
+		-s EXPORT_ES6=1 \
 		-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 		-o $(ARTIFACT) --bind -O3 --no-entry --pre-js module.js \
 		$(OBJECTS) entry.cpp
