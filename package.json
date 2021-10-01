@@ -1,6 +1,6 @@
 {
   "name": "@cybertec/pg-query-emscripten",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "PostgreSQL query parsing in a browser near you",
   "scripts": {
     "test": "jest"
