@@ -1,11 +1,9 @@
+import Module from "./pg_query";
+
 let pgQuery;
 
 beforeAll(async () => {
-	let outerModule;
-	await import("./pg_query.js").then((module) => {
-		outerModule = module;
-	});
-	pgQuery = await outerModule.default();
+	pgQuery = await new Module();
 });
 
 test("normalize", () => {

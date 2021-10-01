@@ -7,9 +7,15 @@ yarn add @cybertec/pg-query-emscripten
 ```
 
 ```javascript
-import PgQuery from "@cybertec/pg-query-emscripten";
+import Module from "@cybertec/pg-query-emscripten";
 
-console.log(PgQuery.parse("SELECT 1"));
+let pgQuery;
+
+(async () => {
+  pgQuery = await new Module();
+
+  console.log(pgQuery.parse("select 1"));
+})();
 ```
 
 ### Author
