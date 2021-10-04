@@ -29,11 +29,13 @@ var Module = {
     var pointer = allocate(intArrayFromString(text), Module["ALLOC_STACK"]);
     var parsed = Module.raw_parse_plpgsql(pointer);
     Module._free(pointer);
-    
-    parsed.plpgsql_funcs = JSON.parse(parsed['plpgsql_funcs']);
 
     if (parsed.error.message == "") {
-      parsed.error = null
+      parsed.error = null;
+      // Only returns valid JSON if no error is present
+      parsed.plpgsql_funcs = JSON.parse(parsed["plpgsql_funcs"]);
+    } else {
+      parsed.plpgsql_funcs = [];
     }
 
     return parsed;
