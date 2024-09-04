@@ -28,7 +28,7 @@ test("parse", () => {
 								ResTarget: {
 									val: {
 										A_Const: {
-											val: { Integer: { ival: 1 } },
+											ival: { ival: 1 },
 											location: 7,
 										},
 									},
@@ -68,6 +68,22 @@ test("parsePlpgsql", () => {
 					datums: [
 						{
 							PLpgSQL_var: {
+								refname: "v_name",
+								datatype: {
+									PLpgSQL_type: { typname: "UNKNOWN" },
+								},
+							},
+						},
+						{
+							PLpgSQL_var: {
+								refname: "v_version",
+								datatype: {
+									PLpgSQL_type: { typname: "UNKNOWN" },
+								},
+							},
+						},
+						{
+							PLpgSQL_var: {
 								refname: "found",
 								datatype: {
 									PLpgSQL_type: { typname: "UNKNOWN" },
@@ -84,7 +100,8 @@ test("parsePlpgsql", () => {
 										lineno: 3,
 										cond: {
 											PLpgSQL_expr: {
-												query: "SELECT v_version IS NULL",
+												parseMode: 2,
+												query: "v_version IS NULL",
 											},
 										},
 										then_body: [
@@ -93,7 +110,8 @@ test("parsePlpgsql", () => {
 													lineno: 4,
 													expr: {
 														PLpgSQL_expr: {
-															query: "SELECT v_name",
+															parseMode: 2,
+															query: "v_name",
 														},
 													},
 												},
@@ -106,7 +124,8 @@ test("parsePlpgsql", () => {
 										lineno: 6,
 										expr: {
 											PLpgSQL_expr: {
-												query: "SELECT v_name || '/' || v_version",
+												parseMode: 2,
+												query: "v_name || '/' || v_version",
 											},
 										},
 									},
