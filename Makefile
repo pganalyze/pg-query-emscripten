@@ -29,7 +29,7 @@ flatten:
 
 	if [ ! -e "$(LIB_ARCHIVE)" ]; then \
 		curl -o "$(LIB_ARCHIVE)" \
-			"https://codeload.github.com/lfittl/libpg_query/tar.gz/$(LIB_PG_QUERY_TAG)"; \
+			"https://codeload.github.com/pganalyze/libpg_query/tar.gz/$(LIB_PG_QUERY_TAG)"; \
 	fi
 
 	rm -rf "$(LIB_DIR)"
