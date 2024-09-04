@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.1.0    2024-09-04
+
+* Update to Postgres 16 parser, match libpg_query versioning scheme
+* Add optional WASM build output in "pg_query_wasm.js" file
+* Adjust function names to use camelCase naming instead of under_score_case [Philip Trauner](https://github.com/PhilipTrauner)
+* Export as ESM module (note this may require use of a transpiler when importing this library) [Philip Trauner](https://github.com/PhilipTrauner)
+* Add support for scan function (pg_query_scan) [Philip Trauner](https://github.com/PhilipTrauner)
+* Support newer emscripten versions [Julz Hoben](https://github.com/neighbaa) [Philip Trauner](https://github.com/PhilipTrauner)
+
+
 ## 0.1.0    2018-09-11
 
 * Update to Postgres 10 parser [Alexey Shamrin](https://github.com/shamrin) [#6](https://github.com/lfittl/pg-query-emscripten/pull/6)
