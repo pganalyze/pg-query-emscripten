@@ -1,4 +1,4 @@
-LIB_PG_QUERY_TAG := 13-2.0.7
+LIB_PG_QUERY_TAG := 16-5.1.0
 
 BUILD_DIR := tmp/$(LIB_PG_QUERY_TAG)
 FLATTENED_LIB_DIR := $(BUILD_DIR)/flattened
@@ -41,30 +41,28 @@ flatten:
 	mkdir -p "$(FLATTENED_LIB_DIR)"
 
 	cp -a $(LIB_DIR)/src/* "$(FLATTENED_LIB_DIR)"
+	mv $(FLATTENED_LIB_DIR)/postgres/include "$(FLATTENED_LIB_DIR)/include/postgres"
 	mv $(FLATTENED_LIB_DIR)/postgres/* "$(FLATTENED_LIB_DIR)"
-	rm -r "$(FLATTENED_LIB_DIR)/postgres"
+	rmdir "$(FLATTENED_LIB_DIR)/postgres"
 	cp -a "$(LIB_DIR)/pg_query.h" "$(FLATTENED_LIB_DIR)/include"
 
-	# Vendored dependencies
-	if [ -d "$(LIB_DIR)/protobuf" ]; then \
-		cp -a "$(LIB_DIR)/protobuf" "$(FLATTENED_LIB_DIR)/include/"; \
-		cp -a $(LIB_DIR)/protobuf/* "$(FLATTENED_LIB_DIR)/"; \
-	fi
-
-	if [ -d "$(LIB_DIR)/vendor/protobuf-c" ]; then \
-		cp -a "$(LIB_DIR)/vendor/protobuf-c" "$(FLATTENED_LIB_DIR)/include/"; \
-		cp -a $(LIB_DIR)/vendor/protobuf-c/* "$(FLATTENED_LIB_DIR)/"; \
-	fi
-
-	if [ -d "$(LIB_DIR)/vendor/xxhash" ]; then \
-		cp -a "$(LIB_DIR)/vendor/xxhash" "$(FLATTENED_LIB_DIR)/include/"; \
-		cp -a $(LIB_DIR)/vendor/xxhash/* "$(FLATTENED_LIB_DIR)/"; \
-	fi
-
-	# Make every `.c` file in the top-level directory into its own translation unit
-	mv $(FLATTENED_LIB_DIR)/*_conds.c $(FLATTENED_LIB_DIR)/*_defs.c \
-		$(FLATTENED_LIB_DIR)/*_helper.c $(FLATTENED_LIB_DIR)/*_random.c \
-		$(FLATTENED_LIB_DIR)/include
+	# Protobuf definitions
+	# TODO: This generated .ts file seems to run the typescript compiler out of memory, possible due to recursive references? (see https://github.com/microsoft/TypeScript/issues/53087)
+	#npm install ts-proto
+	#protoc --proto_path=$(LIB_DIR)/protobuf --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=. $(LIB_DIR)/protobuf/pg_query.proto
+	mkdir -p $(FLATTENED_LIB_DIR)//include/protobuf
+	cp -a $(LIB_DIR)/protobuf/*.h $(FLATTENED_LIB_DIR)/include/protobuf
+	cp -a $(LIB_DIR)/protobuf/*.c $(FLATTENED_LIB_DIR)/
+	# Protobuf library code
+	mkdir -p $(FLATTENED_LIB_DIR)//include/protobuf-c
+	cp -a $(LIB_DIR)/vendor/protobuf-c/*.h $(FLATTENED_LIB_DIR)/include
+	cp -a $(LIB_DIR)/vendor/protobuf-c/*.h $(FLATTENED_LIB_DIR)/include/protobuf-c
+	cp -a $(LIB_DIR)/vendor/protobuf-c/*.c $(FLATTENED_LIB_DIR)/
+	# xxhash library code
+	mkdir -p $(FLATTENED_LIB_DIR)//include/xxhash
+	cp -a $(LIB_DIR)/vendor/xxhash/*.h $(FLATTENED_LIB_DIR)/include
+	cp -a $(LIB_DIR)/vendor/xxhash/*.h $(FLATTENED_LIB_DIR)/include/xxhash
+	cp -a $(LIB_DIR)/vendor/xxhash/*.c $(FLATTENED_LIB_DIR)/
 
 	echo "#undef HAVE_SIGSETJMP" >> "$(FLATTENED_LIB_DIR)/include/pg_config.h"
 	echo "#undef HAVE_SPINLOCKS" >> "$(FLATTENED_LIB_DIR)/include/pg_config.h"
@@ -77,15 +75,21 @@ OBJECTS := $(patsubst $(FLATTENED_LIB_DIR)/%.c,$(OBJECT_DIR)/%.o, $(SOURCES))
 
 $(OBJECT_DIR)/%.o: $(FLATTENED_LIB_DIR)/%.c
 	@mkdir -p $(@D)
-	emcc -I $(FLATTENED_LIB_DIR)/include -O3 -c $< -o $@
+	emcc \
+		-I $(FLATTENED_LIB_DIR)/include \
+		-I $(FLATTENED_LIB_DIR)/include/postgres \
+		-O3 -c $< -o $@
 
 
 $(ARTIFACT): $(OBJECTS) entry.cpp module.js
 	em++ \
 		-I $(FLATTENED_LIB_DIR)/include \
+		-I $(FLATTENED_LIB_DIR)/include/postgres \
 		-s ALLOW_MEMORY_GROWTH=1 \
 		-s ASSERTIONS=0 \
-		-s EXPORTED_RUNTIME_METHODS="['ALLOC_STACK']" \
+		-s EXPORTED_RUNTIME_METHODS="['ALLOC_STACK','allocate']" \
+		-s EXPORTED_FUNCTIONS="['_free']" \
+		-s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=allocate \
 		-s ENVIRONMENT=web \
 		-s SINGLE_FILE=1 \
 		-s MODULARIZE=1 \
