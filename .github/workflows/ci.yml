@@ -1,0 +1,23 @@
+name: CI
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Set up node environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Set up emscripten
+        uses: mymindstorm/setup-emsdk@v14
+      - name: Build library
+        run: make
+      - name: Runs tests
+        run: NODE_OPTIONS="$NODE_OPTIONS --experimental-vm-modules" npx jest
