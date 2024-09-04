@@ -8,7 +8,8 @@
   "main": "pg_query.js",
   "type": "module",
   "files": [
-    "pg_query.js"
+    "pg_query.js",
+    "pg_query_wasm.js"
   ],
   "repository": {
     "type": "git",
