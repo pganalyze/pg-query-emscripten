@@ -14,6 +14,20 @@ test("normalize", () => {
 	});
 });
 
+test("format", () => {
+	expect(pgQuery.format("select * FROM table1 JOIN table2 ON (a = b) WHERE c = 123 AND d = 'test'")).toStrictEqual({
+		error: null,
+		query: `SELECT *
+FROM
+    table1
+    JOIN table2 ON a = b
+WHERE
+    c = 123
+    AND d = 'test'
+`,
+	});
+});
+
 test("parse", () => {
 	const initial = pgQuery.parse("select 1");
 	// Tests shouldn't be version dependent
