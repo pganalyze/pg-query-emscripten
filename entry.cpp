@@ -24,6 +24,12 @@ typedef struct {
 } NormalizeResult;
 
 typedef struct {
+  std::string query;
+  std::string stderr_buffer;
+  ParseError error;
+} FormatResult;
+
+typedef struct {
 	std::string parse_tree;
 	std::string stderr_buffer;
 	ParseError error;
@@ -87,6 +93,50 @@ NormalizeResult raw_normalize(intptr_t input) {
 	result.normalized_query = std::string(tmp_result.normalized_query);
 
 	pg_query_free_normalize_result(tmp_result);
+
+	return result;
+}
+
+FormatResult raw_format(intptr_t input) {
+	FormatResult result;
+
+	PgQueryProtobufParseResult parse_result = pg_query_parse_protobuf(reinterpret_cast<char*>(input));
+	if (parse_result.error) {
+		result.error = transform_error(*parse_result.error);
+		pg_query_free_protobuf_parse_result(parse_result);
+		return result;
+	}
+	if (parse_result.stderr_buffer) {
+		result.stderr_buffer = std::string(parse_result.stderr_buffer);
+	}
+
+	PgQueryDeparseCommentsResult comments_result = pg_query_deparse_comments_for_query(reinterpret_cast<char*>(input));
+	if (comments_result.error && strcmp(comments_result.error->message, "") != 0) {
+		result.error = transform_error(*comments_result.error);
+		pg_query_free_protobuf_parse_result(parse_result);
+		pg_query_free_deparse_comments_result(comments_result);
+		return result;
+	}
+
+	PostgresDeparseOpts deparse_opts = {0};
+	deparse_opts.pretty_print = true;
+	deparse_opts.trailing_newline = true;
+	deparse_opts.comments = comments_result.comments;
+	deparse_opts.comment_count = comments_result.comment_count;
+	PgQueryDeparseResult deparse_result = pg_query_deparse_protobuf_opts(parse_result.parse_tree, deparse_opts);
+	if (deparse_result.error) {
+		result.error = transform_error(*deparse_result.error);
+		pg_query_free_protobuf_parse_result(parse_result);
+		pg_query_free_deparse_comments_result(comments_result);
+		pg_query_free_deparse_result(deparse_result);
+		return result;
+	}
+
+	result.query = std::string(deparse_result.query);
+
+	pg_query_free_protobuf_parse_result(parse_result);
+	pg_query_free_deparse_comments_result(comments_result);
+	pg_query_free_deparse_result(deparse_result);
 
 	return result;
 }
@@ -216,6 +266,11 @@ EMSCRIPTEN_BINDINGS(my_module) {
 		.field("error", &NormalizeResult::error)
 		;
 
+	value_object<FormatResult>("FormatResult")
+		.field("query", &FormatResult::query)
+		.field("error", &FormatResult::error)
+		;
+
 	value_object<ParseResult>("ParseResult")
 		.field("parse_tree", &ParseResult::parse_tree)
 		.field("stderr_buffer", &ParseResult::stderr_buffer)
@@ -263,6 +318,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
 		;
 
 	function("raw_normalize", &raw_normalize);
+	function("raw_format", &raw_format);
 	function("raw_parse", &raw_parse);
 	function("raw_parse_plpgsql", &raw_parse_plpgsql);
 	function("raw_fingerprint", &raw_fingerprint);

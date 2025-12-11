@@ -11,6 +11,18 @@ var Module = {
     return parsed;
   },
 
+  format: function format(text) {
+    var pointer = allocate(intArrayFromString(text), Module['ALLOC_STACK']);
+    var parsed = Module.raw_format(pointer);
+    Module._free(pointer);
+
+    if (parsed.error.message == "") {
+      parsed.error = null
+    }
+
+    return parsed;
+  },
+
   parse: function parse(text) {
     var pointer = allocate(intArrayFromString(text), Module['ALLOC_STACK']);
     var parsed = Module.raw_parse(pointer);

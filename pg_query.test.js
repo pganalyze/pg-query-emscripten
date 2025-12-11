@@ -1,15 +1,30 @@
-import Module from "./pg_query";
+import { test, expect, beforeAll } from "vitest";
+import Module from "./pg_query_wasm";
 
 let pgQuery;
 
 beforeAll(async () => {
-	pgQuery = await new Module();
+	pgQuery = await Module();
 });
 
 test("normalize", () => {
 	expect(pgQuery.normalize("select 1")).toStrictEqual({
 		error: null,
 		normalized_query: "select $1",
+	});
+});
+
+test("format", () => {
+	expect(pgQuery.format("select * FROM table1 JOIN table2 ON (a = b) WHERE c = 123 AND d = 'test'")).toStrictEqual({
+		error: null,
+		query: `SELECT *
+FROM
+    table1
+    JOIN table2 ON a = b
+WHERE
+    c = 123
+    AND d = 'test'
+`,
 	});
 });
 
@@ -70,7 +85,7 @@ test("parsePlpgsql", () => {
 							PLpgSQL_var: {
 								refname: "v_name",
 								datatype: {
-									PLpgSQL_type: { typname: "UNKNOWN" },
+									PLpgSQL_type: { typname: "pg_catalog.\"varchar\"" },
 								},
 							},
 						},
@@ -78,7 +93,7 @@ test("parsePlpgsql", () => {
 							PLpgSQL_var: {
 								refname: "v_version",
 								datatype: {
-									PLpgSQL_type: { typname: "UNKNOWN" },
+									PLpgSQL_type: { typname: "pg_catalog.\"varchar\"" },
 								},
 							},
 						},
@@ -86,7 +101,7 @@ test("parsePlpgsql", () => {
 							PLpgSQL_var: {
 								refname: "found",
 								datatype: {
-									PLpgSQL_type: { typname: "UNKNOWN" },
+									PLpgSQL_type: { typname: "pg_catalog.\"boolean\"" },
 								},
 							},
 						},

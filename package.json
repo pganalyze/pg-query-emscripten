@@ -25,7 +25,7 @@
     "fs": false
   },
   "devDependencies": {
-    "jest": "^27.2.2"
+    "vitest": "^4.0.15"
   },
   "keywords": [
     "postgres",
