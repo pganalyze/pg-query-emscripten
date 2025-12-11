@@ -1,9 +1,10 @@
 import Module from "./pg_query";
+import { test, expect, beforeAll } from "vitest";
 
 let pgQuery;
 
 beforeAll(async () => {
-	pgQuery = await new Module();
+	pgQuery = await Module();
 });
 
 test("normalize", () => {
