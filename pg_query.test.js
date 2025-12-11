@@ -71,7 +71,7 @@ test("parsePlpgsql", () => {
 							PLpgSQL_var: {
 								refname: "v_name",
 								datatype: {
-									PLpgSQL_type: { typname: "UNKNOWN" },
+									PLpgSQL_type: { typname: "pg_catalog.\"varchar\"" },
 								},
 							},
 						},
@@ -79,7 +79,7 @@ test("parsePlpgsql", () => {
 							PLpgSQL_var: {
 								refname: "v_version",
 								datatype: {
-									PLpgSQL_type: { typname: "UNKNOWN" },
+									PLpgSQL_type: { typname: "pg_catalog.\"varchar\"" },
 								},
 							},
 						},
@@ -87,7 +87,7 @@ test("parsePlpgsql", () => {
 							PLpgSQL_var: {
 								refname: "found",
 								datatype: {
-									PLpgSQL_type: { typname: "UNKNOWN" },
+									PLpgSQL_type: { typname: "pg_catalog.\"boolean\"" },
 								},
 							},
 						},
