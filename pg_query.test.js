@@ -1,5 +1,5 @@
-import Module from "./pg_query";
 import { test, expect, beforeAll } from "vitest";
+import Module from "./pg_query_wasm";
 
 let pgQuery;
 

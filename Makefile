@@ -6,7 +6,7 @@ OBJECT_DIR := $(BUILD_DIR)/object
 LIB_DIR := $(BUILD_DIR)/libpg_query
 LIB_ARCHIVE := $(BUILD_DIR)/libpg_query.tar.gz
 
-WASM ?= 0
+WASM ?= 1
 
 ifeq ($(WASM),1)
 ARTIFACT := pg_query_wasm.js
