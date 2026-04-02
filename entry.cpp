@@ -183,6 +183,40 @@ ScanResult raw_scan(intptr_t input) {
 #endif
 
 
+typedef struct {
+	std::string query;
+	ParseError error;
+} DeparseResult;
+
+DeparseResult raw_deparse(intptr_t input) {
+	PgQueryProtobufParseResult parse_result;
+	PgQueryDeparseResult deparse_result;
+	DeparseResult result;
+
+	// First parse to protobuf
+	parse_result = pg_query_parse_protobuf(reinterpret_cast<char*>(input));
+
+	if (parse_result.error) {
+		result.error = transform_error(*parse_result.error);
+		pg_query_free_protobuf_parse_result(parse_result);
+		return result;
+	}
+
+	// Then deparse from protobuf
+	deparse_result = pg_query_deparse_protobuf(parse_result.parse_tree);
+
+	if (deparse_result.error) {
+		result.error = transform_error(*deparse_result.error);
+	} else {
+		result.query = std::string(deparse_result.query);
+	}
+
+	pg_query_free_deparse_result(deparse_result);
+	pg_query_free_protobuf_parse_result(parse_result);
+
+	return result;
+}
+
 FingerprintResult raw_fingerprint(intptr_t input) {
 	PgQueryFingerprintResult tmp_result;
 	FingerprintResult result;
@@ -262,9 +296,15 @@ EMSCRIPTEN_BINDINGS(my_module) {
 		.field("context", &ParseError::context)
 		;
 
+	value_object<DeparseResult>("DeparseResult")
+		.field("query", &DeparseResult::query)
+		.field("error", &DeparseResult::error)
+		;
+
 	function("raw_normalize", &raw_normalize);
 	function("raw_parse", &raw_parse);
 	function("raw_parse_plpgsql", &raw_parse_plpgsql);
+	function("raw_deparse", &raw_deparse);
 	function("raw_fingerprint", &raw_fingerprint);
 #if PG_VERSION_NUM >= 130002
 	function("raw_scan", &raw_scan);

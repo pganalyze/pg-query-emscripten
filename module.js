@@ -1,9 +1,16 @@
 var Module = {
+  _allocString: function _allocString(text) {
+    var bytes = intArrayFromString(text);
+    var pointer = Module._malloc(bytes.length);
+    HEAP8.set(bytes, pointer);
+    return pointer;
+  },
+
   normalize: function normalize(text) {
-    var pointer = allocate(intArrayFromString(text), Module['ALLOC_STACK']);
+    var pointer = Module._allocString(text);
     var parsed = Module.raw_normalize(pointer);
     Module._free(pointer);
-    
+
     if (parsed.error.message == "") {
       parsed.error = null
     }
@@ -12,10 +19,10 @@ var Module = {
   },
 
   parse: function parse(text) {
-    var pointer = allocate(intArrayFromString(text), Module['ALLOC_STACK']);
+    var pointer = Module._allocString(text);
     var parsed = Module.raw_parse(pointer);
     Module._free(pointer);
-    
+
     parsed.parse_tree = JSON.parse(parsed['parse_tree']);
 
     if (parsed.error.message == "") {
@@ -26,7 +33,7 @@ var Module = {
   },
 
   parsePlpgsql: function parse_plpgsql(text) {
-    var pointer = allocate(intArrayFromString(text), Module["ALLOC_STACK"]);
+    var pointer = Module._allocString(text);
     var parsed = Module.raw_parse_plpgsql(pointer);
     Module._free(pointer);
 
@@ -41,11 +48,23 @@ var Module = {
     return parsed;
   },
 
+  deparse: function deparse(text) {
+    var pointer = Module._allocString(text);
+    var parsed = Module.raw_deparse(pointer);
+    Module._free(pointer);
+
+    if (parsed.error.message == "") {
+      parsed.error = null;
+    }
+
+    return parsed;
+  },
+
   fingerprint: function fingerprint(text) {
-    var pointer = allocate(intArrayFromString(text), Module['ALLOC_STACK']);
+    var pointer = Module._allocString(text);
     var parsed = Module.raw_fingerprint(pointer);
     Module._free(pointer);
-    
+
     if (parsed.error.message == "") {
       parsed.error = null
     } else {
@@ -56,10 +75,10 @@ var Module = {
   },
 
   scan: function scan(text) {
-    var pointer = allocate(intArrayFromString(text), Module['ALLOC_STACK']);
+    var pointer = Module._allocString(text);
     var parsed = Module.raw_scan(pointer);
     Module._free(pointer);
-    
+
     if (parsed.error.message == "") {
       parsed.error = null
     } else {

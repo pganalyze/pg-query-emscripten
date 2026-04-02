@@ -1,4 +1,4 @@
-LIB_PG_QUERY_TAG := 16-5.1.0
+LIB_PG_QUERY_TAG := 17-6.2.2
 
 BUILD_DIR := tmp/$(LIB_PG_QUERY_TAG)
 FLATTENED_LIB_DIR := $(BUILD_DIR)/flattened
@@ -45,6 +45,7 @@ flatten:
 	mv $(FLATTENED_LIB_DIR)/postgres/* "$(FLATTENED_LIB_DIR)"
 	rmdir "$(FLATTENED_LIB_DIR)/postgres"
 	cp -a "$(LIB_DIR)/pg_query.h" "$(FLATTENED_LIB_DIR)/include"
+	cp -a "$(LIB_DIR)/postgres_deparse.h" "$(FLATTENED_LIB_DIR)/include"
 
 	# Protobuf definitions
 	# TODO: This generated .ts file seems to run the typescript compiler out of memory, possible due to recursive references? (see https://github.com/microsoft/TypeScript/issues/53087)
@@ -87,15 +88,13 @@ $(ARTIFACT): $(OBJECTS) entry.cpp module.js
 		-I $(FLATTENED_LIB_DIR)/include/postgres \
 		-s ALLOW_MEMORY_GROWTH=1 \
 		-s ASSERTIONS=0 \
-		-s EXPORTED_RUNTIME_METHODS="['ALLOC_STACK','allocate']" \
-		-s EXPORTED_FUNCTIONS="['_free']" \
-		-s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=allocate \
+		-s EXPORTED_RUNTIME_METHODS="['intArrayFromString']" \
+		-s EXPORTED_FUNCTIONS="['_malloc','_free']" \
 		-s ENVIRONMENT=web \
 		-s SINGLE_FILE=1 \
 		-s MODULARIZE=1 \
 		-s EXPORT_NAME="pgQuery" \
 		-s WASM=$(WASM) \
-		-s USE_ES6_IMPORT_META=0 \
 		-s EXPORT_ES6=1 \
 		-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 		-o $(ARTIFACT) --bind -O3 --no-entry --pre-js module.js \
